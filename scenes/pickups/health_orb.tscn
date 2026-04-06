@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/pickups/loot_orb.gd" id="1"]
+
+[sub_resource type="SphereShape3D" id="1"]
+radius = 0.75
+
+[sub_resource type="SphereMesh" id="2"]
+radius = 0.3
+height = 0.6
+
+[sub_resource type="StandardMaterial3D" id="3"]
+albedo_color = Color(0.2, 0.8, 0.2, 1)
+emission_enabled = true
+emission = Color(0.2, 0.8, 0.2, 1)
+emission_energy_multiplier = 1.5
+
+[node name="HealthOrb" type="Area3D"]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("1")
+orb_type = "health"
+restore_amount = 15
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("2")
+surface_material_override/0 = SubResource("3")

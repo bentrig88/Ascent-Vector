@@ -1,0 +1,56 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/environment/room.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/player/proxy.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="3"]
+[ext_resource type="Script" path="res://scripts/systems/grid_manager.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/systems/wave_manager.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/systems/session_tracker.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/systems/knockback_system.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="8"]
+[ext_resource type="Script" path="res://scripts/systems/loot_system.gd" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://scenes/ui/debug_hud.tscn" id="11"]
+
+[sub_resource type="Environment" id="env_1"]
+ambient_light_source = 1
+ambient_light_color = Color(0.3, 0.3, 0.35, 1)
+ambient_light_energy = 0.5
+
+[node name="Main" type="Node3D"]
+script = ExtResource("8")
+
+[node name="Room" parent="." instance=ExtResource("1")]
+
+[node name="Proxy" parent="." instance=ExtResource("2")]
+position = Vector3(0.0, 0.5, 0.0)
+
+[node name="GridManager" type="Node" parent="."]
+script = ExtResource("4")
+
+[node name="WaveManager" type="Node" parent="."]
+script = ExtResource("5")
+
+[node name="SessionTracker" type="Node" parent="."]
+script = ExtResource("6")
+
+[node name="KnockbackSystem" type="Node" parent="."]
+script = ExtResource("7")
+
+[node name="LootSystem" type="Node" parent="."]
+script = ExtResource("9")
+
+[node name="HUD" parent="." instance=ExtResource("3")]
+
+[node name="GameOver" parent="." instance=ExtResource("10")]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+position = Vector3(0.0, 15.0, 0.0)
+rotation = Vector3(-0.785, 0.785, 0.0)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env_1")
+
+[node name="DebugHUD" parent="." instance=ExtResource("11")]

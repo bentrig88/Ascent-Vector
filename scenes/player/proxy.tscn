@@ -1,0 +1,184 @@
+[gd_scene format=3 uid="uid://dcjvrqb4mu1k0"]
+
+[ext_resource type="Script" uid="uid://ctkgd745cnoes" path="res://scripts/player/player_controller.gd" id="1"]
+[ext_resource type="Script" uid="uid://blblf7flusqgt" path="res://scripts/camera/proxy_camera.gd" id="2"]
+[ext_resource type="Script" uid="uid://bq7kfme4xxrya" path="res://scripts/weapons/slam_hitbox.gd" id="3"]
+[ext_resource type="Script" uid="uid://dm8qldgqorxvx" path="res://scripts/weapons/spin_hitbox.gd" id="4"]
+
+[sub_resource type="CapsuleShape3D" id="1"]
+radius = 0.4
+height = 1.6
+
+[sub_resource type="CapsuleMesh" id="2"]
+radius = 0.4
+height = 1.6
+
+[sub_resource type="StandardMaterial3D" id="body_mat"]
+albedo_color = Color(1, 0.5, 0.1, 1)
+
+[sub_resource type="SphereMesh" id="face_sphere"]
+radius = 0.15
+height = 0.3
+
+[sub_resource type="StandardMaterial3D" id="face_mat"]
+albedo_color = Color(0.15, 0.1, 0.05, 1)
+
+[sub_resource type="BoxMesh" id="sword_blade"]
+size = Vector3(0.15, 0.08, 1.4)
+
+[sub_resource type="StandardMaterial3D" id="sword_mat"]
+albedo_color = Color(0.7, 0.85, 0.95, 1)
+metallic = 0.8
+roughness = 0.2
+
+[sub_resource type="BoxMesh" id="sword_handle"]
+size = Vector3(0.2, 0.12, 0.25)
+
+[sub_resource type="StandardMaterial3D" id="handle_mat"]
+albedo_color = Color(0.45, 0.3, 0.15, 1)
+
+[sub_resource type="BoxShape3D" id="3"]
+size = Vector3(1, 0.5, 1.8)
+
+[sub_resource type="Animation" id="Animation_1o8js"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("SwordFacingPivot/SwordPivot:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0.9846374, 0.30029646)]
+}
+
+[sub_resource type="Animation" id="anim_slam"]
+resource_name = "slam"
+length = 1.0666667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("SwordFacingPivot/SwordPivot:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.23333333, 0.8325273, 1.0666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(-1.5708, 0, 0), Vector3(-3.991568, 0, 0), Vector3(-3.991568, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("SwordFacingPivot/SwordPivot:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.23333333, 0.8325273, 0.96666664, 1.0666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0.9846374, 0.30029646), Vector3(0, 1.5947146, 0.02574092), Vector3(0, 0.21318315, -0.38154438), Vector3(0, 0.21318315, -0.38154438), Vector3(0, 1.5297332, -0.17827415), Vector3(0, 0.9846374, 0.30029646)]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("SwordFacingPivot/SwordPivot/SlamHitbox")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.23),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [0.25],
+"method": &"activate"
+}]
+}
+
+[sub_resource type="Animation" id="anim_spin"]
+resource_name = "spin"
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("SwordFacingPivot/SwordPivot:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 3.14159, 0), Vector3(0, 6.28318, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="anim_lib"]
+_data = {
+&"RESET": SubResource("Animation_1o8js"),
+&"slam": SubResource("anim_slam"),
+&"spin": SubResource("anim_spin")
+}
+
+[sub_resource type="CylinderShape3D" id="4"]
+height = 1.0
+radius = 2.0
+
+[node name="Proxy" type="CharacterBody3D" unique_id=1074109172]
+collision_layer = 4
+collision_mask = 27
+script = ExtResource("1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1612447122]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1765691434]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+mesh = SubResource("2")
+surface_material_override/0 = SubResource("body_mat")
+
+[node name="FaceMarker" type="MeshInstance3D" parent="." unique_id=1607064531]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -0.35)
+mesh = SubResource("face_sphere")
+surface_material_override/0 = SubResource("face_mat")
+
+[node name="SwordFacingPivot" type="Node3D" parent="." unique_id=562599326]
+
+[node name="SwordPivot" type="Node3D" parent="SwordFacingPivot" unique_id=1501862954]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9846374, 0.30029646)
+
+[node name="SwordBlade" type="MeshInstance3D" parent="SwordFacingPivot/SwordPivot" unique_id=944641152]
+transform = Transform3D(1, 0, 0, 0, 0.84555, -0.53389, 0, 0.53389, 0.84555, 0, -0.75, 0.9)
+mesh = SubResource("sword_blade")
+surface_material_override/0 = SubResource("sword_mat")
+
+[node name="SwordHandle" type="MeshInstance3D" parent="SwordFacingPivot/SwordPivot" unique_id=1281142161]
+transform = Transform3D(1, 0, 0, 0, 0.84658355, -0.5322558, 0, 0.5322558, 0.84658355, 0, -0.31743762, 0.1948971)
+mesh = SubResource("sword_handle")
+surface_material_override/0 = SubResource("handle_mat")
+
+[node name="SlamHitbox" type="Area3D" parent="SwordFacingPivot/SwordPivot" unique_id=159183477]
+transform = Transform3D(1, 0, 0, 0, 0.8484825, -0.52922344, 0, 0.52922344, 0.8484825, 0, 0, 0)
+collision_layer = 32
+collision_mask = 26
+script = ExtResource("3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SwordFacingPivot/SwordPivot/SlamHitbox" unique_id=1069618845]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.9)
+shape = SubResource("3")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1887234500]
+libraries/ = SubResource("anim_lib")
+
+[node name="SpinHitbox" type="Area3D" parent="." unique_id=1620295215]
+collision_layer = 32
+collision_mask = 8
+script = ExtResource("4")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SpinHitbox" unique_id=1229305689]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("4")
+
+[node name="ProxyCamera" type="Camera3D" parent="." unique_id=2124884202]
+script = ExtResource("2")
