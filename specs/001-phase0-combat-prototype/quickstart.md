@@ -1,6 +1,6 @@
 # Quickstart: Phase 0 Combat Prototype
 
-**Branch**: `001-phase0-combat-prototype` | **Date**: 2026-04-05
+**Branch**: `001-phase0-combat-prototype` | **Date**: 2026-04-06
 
 ---
 
@@ -27,19 +27,20 @@
 
 ---
 
-## Controls (Gamepad)
+## Controls (Gamepad — PS5 / DualSense)
 
 | Input | Action |
 |---|---|
-| Left Stick | Move P.R.O.X.Y. |
-| Right Stick | Aim / face direction (both modes) |
-| Hold L2 | Enter Air Mode (jetpack) |
-| Release L2 | Begin descent back to Ground Mode |
+| Left Stick | Move P.R.O.X.Y. (screen-relative: up = screen-up) |
+| Right Stick | Aim / face direction (Air Mode only) |
+| L2 (axis, hold) | Jetpack thrust — hold to rise, release to descend |
 | X Button | Heavy Slam (Ground Mode only) |
 | O Button | Spin Attack (Ground Mode only) |
-| R2 | Fire Machine Gun (Air Mode only) |
+| R2 (axis, hold) | Fire Machine Gun (Air Mode only) |
 | Approach Energy Plug + any button | Plug in to recharge |
 | Any button (after 0.5 sec lock-in) | Unplug early |
+
+> **Note (2026-04-06):** L2/R2 are mapped as joypad axes (4/5) with deadzone 0.3, not button presses. Ground Mode facing follows movement direction (left stick), not the right stick.
 
 ---
 
@@ -47,7 +48,7 @@
 
 | Input | Action |
 |---|---|
-| WASD | Move |
+| WASD | Move (screen-relative: W = screen-up) |
 | Mouse | Aim / face direction |
 | Hold Space | Enter Air Mode |
 | Release Space | Begin descent |
@@ -56,6 +57,8 @@
 | E near plug | Plug in |
 
 *Keyboard bindings are approximate — finalise in Project Settings > Input Map.*
+
+> **Note (2026-04-06):** Movement input is rotated +45° around Y axis so that pressing "up" moves the character toward the top of the screen in the isometric view, not along world-space north.
 
 ---
 

@@ -117,6 +117,34 @@ A player collects Health and Energy orbs dropped by defeated enemies. Collecting
 - Q: What is the minimum separation distance between Drones? → A: 3 units minimum (~1.5 tile widths).
 - Q: When releasing the jetpack over a pit, does P.R.O.X.Y. fall or stay hovering? → A: Releasing the jetpack begins a descent during which the player retains horizontal movement control; if P.R.O.X.Y. is over solid ground when it touches down it lands safely, if it is over a pit when it touches down the fall sequence triggers.
 
+### Session 2026-04-06 — Playtest Implementation Changes
+
+**Ground Mode Facing (overrides FR-006)**:
+- CHANGED: In Ground Mode, P.R.O.X.Y. faces the direction it is moving (left stick), NOT the right stick aim direction. The right stick aim only controls facing in Air Mode. This was changed during playtesting because movement-locked facing felt more natural for the ground melee combat loop — P.R.O.X.Y. drags its sword behind it while running and slams forward in the direction of travel.
+
+**Jetpack Input (overrides FR-010)**:
+- CHANGED: Jetpack is activated by holding L2 (left trigger), not a button press. While L2 is held, P.R.O.X.Y. rises (up to max height of 3 units) and energy drains. Releasing L2 stops the jetpack and P.R.O.X.Y. falls with gravity. Pressing L2 again mid-descent re-activates the jetpack. This gives finer analog control over altitude.
+
+**Machine Gun Input**:
+- CHANGED: Fire is mapped to R2 (right trigger) instead of R1. Both triggers are analog axes for finer control.
+
+**Movement Input**:
+- CHANGED: All movement input is rotated by +45 degrees around Y to match the isometric camera angle. Pressing "up" on the stick moves P.R.O.X.Y. visually upward on screen, not along the world Z axis.
+
+**Slam Attack Animation & Hitbox**:
+- CHANGED: The slam hitbox is a child of the SwordPivot node and rotates with the sword swing animation. The hitbox is activated via a method call track in the AnimationPlayer at the moment the sword hits the ground (t=0.23s into animation), not at attack start. During slam animation lock, P.R.O.X.Y. cannot move or rotate.
+- CHANGED: Slam animation lock duration is 1.07s (matching the full animation length), not 0.8s.
+
+**Grunt AI**:
+- CHANGED: Grunts spawn in an "idle" state and do NOT chase P.R.O.X.Y. immediately. Each grunt has an invisible 5x5 tile (10x10 world unit) alert area. When P.R.O.X.Y. enters this area, the grunt transitions to "chase" state. Grunts also apply separation steering to avoid overlapping, and each grunt targets a different offset position around P.R.O.X.Y. to create surround behavior.
+
+**Visual & Camera**:
+- South and East walls are invisible (collision only) to avoid occluding the isometric view.
+- P.R.O.X.Y. has a visible sword (box primitives) that drags behind it based on facing direction, plus a small dark sphere "face" indicator.
+- Floor tiles have thin dark edge outlines to make the grid visible.
+- Health bar is green, energy bar is yellow. Health orbs glow green, energy orbs glow yellow.
+- Camera orthographic size: 12 (ground), 16 (air). Camera offset computed from rotation basis to keep player centered.
+
 ---
 
 ## Requirements *(mandatory)*

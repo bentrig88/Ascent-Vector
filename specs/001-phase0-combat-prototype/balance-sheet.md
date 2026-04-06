@@ -243,4 +243,83 @@ Use this list to track what feels right and what doesn't during playtesting sess
 
 ---
 
+---
+
+## Session 2026-04-06 — Implemented Values & Deviations
+
+The following values were tuned during the first playtest session with a PS5 controller. Where they differ from the spec above, the implemented value takes precedence for future playtesting.
+
+### Camera
+
+| Parameter | Spec Value | Implemented Value | Reason |
+|---|---|---|---|
+| Camera rotation | (unspecified) | (-30, 45, 0) degrees | Standard isometric angle |
+| Ground zoom (ortho size) | (unspecified) | 12.0 | Tighter view for melee clarity |
+| Air zoom (ortho size) | (unspecified) | 16.0 | Wider view for aerial combat |
+| Follow speed | (unspecified) | 5.0 (lerp weight) | Smooth tracking without lag |
+| Camera offset | (unspecified) | `basis.z * 40.0` | Computed from camera basis to keep player centered in orthographic |
+
+### Jetpack / Air Mode
+
+| Parameter | Spec Value | Implemented Value | Reason |
+|---|---|---|---|
+| Jetpack input | "Hold L2 to enter Air Mode" | L2 axis (joypad axis 4), deadzone 0.3 | PS5 triggers are analog axes, not buttons |
+| Rise behavior | Instant toggle | Hold-to-thrust: rises while held, falls on release | More tactile, gives finer height control |
+| Rise speed | (unspecified) | 3.5 units/sec | Tuned down from initial value — felt too floaty |
+
+### Machine Gun
+
+| Parameter | Spec Value | Implemented Value | Reason |
+|---|---|---|---|
+| Fire input | R2 button | R2 axis (joypad axis 5), deadzone 0.3 | PS5 triggers are analog axes |
+| Projectile speed | 10 units/sec (drone proj) | 18.0 units/sec (player proj) | Player bullets felt too slow at 10 |
+| Projectile origin | (unspecified) | Body center + (0, 0.8, 0) | Fires from torso, not feet |
+
+### Ground Combat
+
+| Parameter | Spec Value | Implemented Value | Reason |
+|---|---|---|---|
+| Slam animation lock | ~0.8 sec cooldown | 1.07 sec (matches AnimationPlayer track) | Synced to actual sword swing animation |
+| Slam hitbox activation | Immediate on press | AnimationPlayer method call at t=0.23s | Hitbox appears when sword hits ground, not on press |
+| Slam hitbox size | (unspecified) | 1.0 × 0.5 × 1.8 | Covers sword arc without over-reaching |
+| Spin animation lock | ~0.6 sec animation | 0.6 sec | Matches spec |
+| Ground facing | Right stick | Left stick (movement direction) | More intuitive — face where you walk |
+
+### Movement
+
+| Parameter | Spec Value | Implemented Value | Reason |
+|---|---|---|---|
+| Input rotation | World-space | +45° around Y axis | Screen-relative movement for isometric view |
+
+### Grunt AI
+
+| Parameter | Spec Value | Implemented Value | Reason |
+|---|---|---|---|
+| Alert range | Immediate chase | 10×10 unit alert area (5-tile radius) | Grunts idle until player enters alert zone |
+| Separation radius | (unspecified) | 1.8 units | Prevents grunt stacking/overlapping |
+| Separation force | (unspecified) | 4.0 | Enough to keep grunts visually distinct |
+| Surround behavior | (unspecified) | Each grunt assigned unique surround angle | Approach player from different directions |
+
+### Visuals
+
+| Element | Implemented Value |
+|---|---|
+| Floor tile color | Teal (0.25, 0.55, 0.55) with dark teal edge outlines (0.12, 0.3, 0.3) |
+| Health bar | Green fill (0.2, 0.8, 0.2) |
+| Energy bar | Yellow fill (0.95, 0.85, 0.15) with low-energy flash below 20 |
+| Health orb | Green emissive (0.2, 0.8, 0.2) |
+| Energy orb | Yellow emissive (0.95, 0.85, 0.15) |
+| Player body | Orange with dark face sphere for facing indicator |
+| Sword | Metallic light blue blade + brown handle |
+| South/East walls | Collision only (invisible mesh) — prevents camera occlusion |
+| Ambient light | (0.3, 0.3, 0.35) via WorldEnvironment |
+
+### Architecture Notes
+
+- Sword hierarchy: `SwordFacingPivot` (code-driven facing rotation) > `SwordPivot` (animation-driven swing) > SwordBlade/SwordHandle/SlamHitbox
+- AnimationPlayer with AnimationLibrary containing "slam", "spin", "RESET" animations
+- AStarGrid2D `cell_size = (1, 1)` — coordinates map 1:1 to grid indices (was (2,2) initially, caused double-scaling)
+- Energy drain uses accumulator pattern to handle fractional per-frame values
+- Grid pathfinding exposed as `get_nav_path()` (renamed from `get_path()` to avoid overriding Node built-in)
+
 *This is a living document. Update values after every playtest session and note what changed and why.*

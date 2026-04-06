@@ -114,6 +114,41 @@ autoloads/
 
 ---
 
+---
+
+## Session 2026-04-06 — Architecture Updates
+
+### Player Scene Hierarchy (proxy.tscn)
+
+The player scene uses a two-level pivot for sword rotation to separate code-driven facing from animation-driven swing:
+
+```text
+Proxy (CharacterBody3D)
+├── CollisionShape3D
+├── MeshInstance3D (body)
+├── FaceMarker (dark sphere — facing indicator)
+├── SwordFacingPivot (Node3D — rotation.y set by code to match facing_vector)
+│   └── SwordPivot (Node3D — animated by AnimationPlayer for slam/spin)
+│       ├── SwordBlade (MeshInstance3D)
+│       ├── SwordHandle (MeshInstance3D)
+│       └── SlamHitbox (Area3D — activated via AnimationPlayer method call track)
+├── SpinHitbox (Area3D — activated from state_ground.gd code)
+├── AnimationPlayer (animations: slam, spin, RESET)
+├── ProxyCamera (Camera3D — top_level=true, orthographic)
+├── StateGround (Node)
+└── StateAir (Node)
+```
+
+### Key Architectural Decisions
+
+- **Screen-relative movement**: All movement input is rotated +45° around Y axis (`raw.rotated(Vector3.UP, deg_to_rad(45.0))`) so that pressing "up" moves toward the top of the isometric screen.
+- **Camera detached**: `ProxyCamera` uses `top_level = true` and computes its own offset from `global_transform.basis.z * 40.0` to stay centered in orthographic view.
+- **Slam hitbox timing**: Activated via AnimationPlayer method call track at t=0.23s (when sword hits ground), not from code on button press.
+- **Grid pathfinding**: `get_nav_path()` with `cell_size = (1, 1)` — coordinates are grid indices, not world units.
+- **Invisible walls**: South and East walls have collision but no mesh (`show_mesh=false`) to prevent camera occlusion in the isometric view.
+
+---
+
 ## Complexity Tracking
 
 *No constitution violations — section not applicable.*
