@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://scripts/enemies/drone.gd" id="1"]
 
 [sub_resource type="CapsuleShape3D" id="1"]
-radius = 0.3
-height = 0.8
+radius = 0.5
+height = 1.0
 
 [sub_resource type="CapsuleMesh" id="2"]
 radius = 0.3

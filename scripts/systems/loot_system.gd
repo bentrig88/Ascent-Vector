@@ -22,8 +22,8 @@ func _on_enemy_died(_enemy_type: String, world_pos: Vector3, over_pit: bool) -> 
 	else:
 		orb = ENERGY_ORB_SCENE.instantiate()
 
-	orb.global_position = Vector3(world_pos.x, FLOOR_Y, world_pos.z)
 	get_parent().add_child(orb)
+	orb.global_position = Vector3(world_pos.x, FLOOR_Y, world_pos.z)
 
 func _restore_time_scale() -> void:
 	Engine.time_scale = 1.0

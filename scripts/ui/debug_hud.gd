@@ -73,9 +73,13 @@ func toggle_god_mode() -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	if player:
 		player.is_invincible = _god_mode
+		player.god_mode = _god_mode
 
 func toggle_infinite_energy() -> void:
 	_infinite_energy = not _infinite_energy
+	var player := get_tree().get_first_node_in_group("player")
+	if player:
+		player.infinite_energy = _infinite_energy
 
 func reset_floor() -> void:
 	get_tree().reload_current_scene()

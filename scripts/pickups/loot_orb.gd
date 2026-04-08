@@ -7,6 +7,12 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	collision_layer = 2   # Layer 2 (Floor) — picked up by player
 	collision_mask = 4    # Layer 3 (Player)
+	EventBus.tile_destroyed.connect(_on_tile_destroyed)
+
+func _on_tile_destroyed(_grid_pos: Vector2i) -> void:
+	var gm := get_tree().get_first_node_in_group("grid_manager")
+	if gm and gm.is_over_pit(global_position):
+		queue_free()
 
 func _on_body_entered(body: Node3D) -> void:
 	if not body.is_in_group("player"):

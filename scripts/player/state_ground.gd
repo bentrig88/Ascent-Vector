@@ -6,9 +6,6 @@ var player: CharacterBody3D = null
 var animation_lock_timer: float = 0.0
 var buffered_action: String = ""
 
-# Hitbox references (set after player scene is ready)
-var _slam_hitbox: Node = null
-var _spin_hitbox: Node = null
 
 func enter() -> void:
 	EventBus.player_state_changed.emit("ground")
@@ -69,14 +66,14 @@ func _do_slam() -> void:
 
 func _do_spin() -> void:
 	print("[Player] SPIN! Energy: ", player.energy)
-	if player.energy < 20:
+	if not player.infinite_energy and player.energy < 20:
 		return
+	if not player.infinite_energy:
+		player.energy = max(player.energy - 20, 0)
+		EventBus.player_energy_changed.emit(player.energy)
 	animation_lock_timer = 0.6
 	player.spin_sword()
-	if not _spin_hitbox:
-		_spin_hitbox = player.get_node_or_null("SpinHitbox")
-	if _spin_hitbox:
-		_spin_hitbox.activate(0.4)
+	# SlamHitbox is activated via AnimationPlayer method call track in the spin animation
 
 func _execute_buffered() -> void:
 	if buffered_action == "slam":

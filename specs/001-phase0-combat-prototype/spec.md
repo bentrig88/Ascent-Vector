@@ -145,6 +145,52 @@ A player collects Health and Energy orbs dropped by defeated enemies. Collecting
 - Health bar is green, energy bar is yellow. Health orbs glow green, energy orbs glow yellow.
 - Camera orthographic size: 12 (ground), 16 (air). Camera offset computed from rotation basis to keep player centered.
 
+### Session 2026-04-08 — Combat Polish & Architecture Refactor
+
+**Entity Hierarchy**:
+- NEW: Introduced `Entity` base class (scripts/entities/entity.gd) extending CharacterBody3D with shared health, knockback_cooldown, and die_in_pit() logic. `EnemyBase` extends Entity; `PlayerController` extends Entity. Eliminates code duplication for pit fall animations.
+
+**Enemy Base Class**:
+- NEW: `EnemyBase` (scripts/enemies/enemy_base.gd) extracts all shared enemy logic: health bar, take_damage, flash_hit, stagger, die, die_in_pit. Grunt and Drone extend it as subclasses with overrides.
+
+**Reusable Health Bar**:
+- NEW: `EnemyHealthBar` scene (scenes/ui/enemy_health_bar.tscn) with @export properties (bar_color, bar_width, bar_height, max_health). Used by both Grunt and Drone instead of inline code.
+
+**Grunt AI Improvements**:
+- CHANGED: Grunts now wander the room randomly when not alerted (1.5 units/sec, 1-3s pause between destinations), instead of standing idle.
+- CHANGED: Alert area reduced from 10×10 to 7×7 world units (3.5-tile radius).
+- CHANGED: When P.R.O.X.Y. leaves the alert area, grunts de-aggro and return to wander state.
+- CHANGED: Grunt attack has a 0.5s windup telegraph (turns purple via AnimationPlayer), then strikes, then recovers. Grunt is frozen during entire attack animation.
+- CHANGED: Hitting a grunt during its attack animation cancels the attack and plays a hit animation (black/white blink). Grunt staggers for 0.35s after being hit.
+- NEW: Grunts have a face marker (dark sphere) in the scene and a forward-facing attack hitbox visual.
+
+**Drone Changes**:
+- CHANGED: Drones fire 3-bullet bursts (0.15s apart) every 0.8s. Bullets are slower (5 units/sec), colored orange/red, and aim at the player's center mass (y+0.8).
+- CHANGED: Hitting a drone mid-burst cancels remaining shots.
+- NEW: Drones have floating health bars (blue fill).
+
+**Machine Gun (Player)**:
+- CHANGED: Fire rate 6 → 14 shots/sec, projectile speed 18 → 28, bullet size halved (radius 0.05), damage 8 → 3 per bullet. No energy cost.
+- NEW: Auto-aim within ~66° cone — bullets angle toward nearest enemy (including downward at grunts from air). Reads enemy CollisionShape3D offset for accurate targeting.
+
+**Spin Attack**:
+- CHANGED: Reuses the sword hitbox (formerly SlamHitbox, now SwordHitbox) for both slam and spin. Spin rotates the entire SwordFacingPivot (proxy spins on itself) instead of just the sword orbiting. SpinHitbox removed.
+
+**Pit Falls**:
+- CHANGED: All entities visually fall into pits (tween y-3.0 over 0.6s) before damage/death is applied. Enemies die after the fall. Player takes 50 damage (unless god mode) and respawns.
+- CHANGED: Grunts check for pits every frame in _physics_process and die if standing on a destroyed tile. Pit collision_mask expanded to detect grunts.
+- CHANGED: Loot orbs listen for tile_destroyed and queue_free if over a pit.
+
+**God Mode Fix**:
+- CHANGED: God mode now blocks ALL damage (enemy attacks, drone projectiles, pit falls), not just melee hits. Separate `god_mode` flag from `is_invincible` (which is for temporary i-frames).
+
+**Hitbox Sizes**:
+- CHANGED: Sword hitbox 1.4×0.5×2.2 → 2.0×0.8×2.8. Grunt collision capsule radius 0.4→0.6. Drone collision capsule radius 0.3→0.5.
+
+**Cleanup**:
+- Renamed slam_hitbox.gd → sword_hitbox.gd, SlamHitbox node → SwordHitbox.
+- Deleted spin_hitbox.gd and SpinHitbox node.
+
 ---
 
 ## Requirements *(mandatory)*

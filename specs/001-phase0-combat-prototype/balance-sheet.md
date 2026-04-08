@@ -322,4 +322,53 @@ The following values were tuned during the first playtest session with a PS5 con
 - Energy drain uses accumulator pattern to handle fractional per-frame values
 - Grid pathfinding exposed as `get_nav_path()` (renamed from `get_path()` to avoid overriding Node built-in)
 
+---
+
+## Session 2026-04-08 — Combat Polish & Rebalancing
+
+### Machine Gun
+
+| Parameter | Previous | New | Reason |
+|---|---|---|---|
+| Fire rate | 6 shots/sec | 14 shots/sec | More bullets, faster feel |
+| Projectile speed | 18 units/sec | 28 units/sec | Snappier hit feedback |
+| Bullet size (radius) | 0.1 | 0.05 | Smaller to match higher volume |
+| Damage per bullet | 8 | 3 | Compensates for higher fire rate (~42 DPS) |
+| Energy cost | 2 per shot | 0 | Machine gun is now free to fire |
+| Auto-aim | None | ~66° cone, prefers closer targets | Bullets angle toward enemies including downward at grunts |
+
+### Drone Attacks
+
+| Parameter | Previous | New | Reason |
+|---|---|---|---|
+| Fire interval | 1.5s single shot | 0.8s, 3-bullet burst (0.15s apart) | More threatening, dodgeable pattern |
+| Bullet speed | 10 units/sec | 5 units/sec | Slower = more dodgeable |
+| Bullet aim | Horizontal (dir.y=0) | Aims at player center mass (y+0.8) | Bullets now actually hit the player |
+| Burst cancel | N/A | Hit mid-burst cancels remaining shots | Reward for counter-attacking |
+
+### Grunt AI
+
+| Parameter | Previous | New | Reason |
+|---|---|---|---|
+| Idle behavior | Stand still | Wander at 1.5 units/sec, 1-3s pauses | Room feels alive before combat |
+| Alert area | 10×10 units (5-tile radius) | 7×7 units (3.5-tile radius) | Player can approach more deliberately |
+| De-aggro | Never | On player leaving alert area | Grunts return to wander, less permanent aggro |
+| Attack telegraph | Instant damage | 0.5s windup (purple color), then strike | Player can read and dodge attacks |
+| Hit stagger | None | 0.35s freeze + hit blink | Hitting enemies feels impactful, cancels attacks |
+
+### Hitbox Sizes
+
+| Element | Previous | New |
+|---|---|---|
+| Sword hitbox | 1.4×0.5×2.2 | 2.0×0.8×2.8 |
+| Grunt collision capsule | radius 0.4, height 1.6 | radius 0.6, height 1.8 |
+| Drone collision capsule | radius 0.3, height 0.8 | radius 0.5, height 1.0 |
+
+### Architecture
+
+- Entity base class: `Entity` → `EnemyBase` → Grunt/Drone; `Entity` → PlayerController
+- Reusable `EnemyHealthBar` scene with @export properties
+- `slam_hitbox.gd` renamed to `sword_hitbox.gd` — used by both slam and spin attacks
+- `spin_hitbox.gd` removed — spin now reuses sword hitbox
+
 *This is a living document. Update values after every playtest session and note what changed and why.*

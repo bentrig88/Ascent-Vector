@@ -4,6 +4,8 @@ var _active_timer: float = 0.0
 var _is_active: bool = false
 var _player: CharacterBody3D = null
 var _visual: MeshInstance3D = null
+var _damage: int = 40
+var _knockback: float = 2.5
 
 func _ready() -> void:
 	collision_layer = 32   # Layer 6 (PlayerMelee) = bit 5 = 32
@@ -30,9 +32,11 @@ func _find_player() -> void:
 		_visual.visible = false
 		add_child(_visual)
 
-func activate(duration: float) -> void:
+func activate(duration: float, damage: int = 40, knockback: float = 2.5) -> void:
 	_active_timer = duration
 	_is_active = true
+	_damage = damage
+	_knockback = knockback
 	monitoring = true
 	if _visual:
 		_visual.visible = true
@@ -68,12 +72,13 @@ func _on_body_entered(body: Node3D) -> void:
 
 	# Enemy hit
 	if body.has_method("take_damage"):
-		body.take_damage(40)
+		body.take_damage(_damage)
 
 	# Knockback
-	var kb_system := get_tree().get_first_node_in_group("knockback_system")
-	if kb_system:
-		kb_system.apply(body, 2.5, _player.global_position)
+	if _player:
+		var kb_system := get_tree().get_first_node_in_group("knockback_system")
+		if kb_system:
+			kb_system.apply(body, _knockback, _player.global_position)
 
 func _damage_tile_at(grid_pos: Vector2i) -> void:
 	# Find the tile node by grid_position

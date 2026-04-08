@@ -2,13 +2,12 @@
 
 [ext_resource type="Script" path="res://scripts/weapons/projectile.gd" id="1"]
 
-[sub_resource type="CapsuleShape3D" id="1"]
-radius = 0.1
-height = 0.3
+[sub_resource type="SphereShape3D" id="1"]
+radius = 0.05
 
 [sub_resource type="SphereMesh" id="2"]
-radius = 0.1
-height = 0.2
+radius = 0.05
+height = 0.1
 
 [node name="Projectile" type="CharacterBody3D"]
 collision_layer = 64

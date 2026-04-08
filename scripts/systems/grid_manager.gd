@@ -77,7 +77,7 @@ func _spawn_pit(grid_pos: Vector2i) -> void:
 	var pit := Area3D.new()
 	pit.name = "Pit_%d_%d" % [grid_pos.x, grid_pos.y]
 	pit.collision_layer = 256  # Layer 8 (bit 8 = 256)
-	pit.collision_mask = 4     # Layer 3 = player
+	pit.collision_mask = 12    # Player(4) + Grunt(8)
 
 	var shape_node := CollisionShape3D.new()
 	var box := BoxShape3D.new()
@@ -85,12 +85,13 @@ func _spawn_pit(grid_pos: Vector2i) -> void:
 	shape_node.shape = box
 	pit.add_child(shape_node)
 
+	get_tree().current_scene.add_child(pit)
 	var world_pos := grid_to_world_center(grid_pos)
 	pit.global_position = Vector3(world_pos.x, -0.5, world_pos.z)
-
-	get_tree().current_scene.add_child(pit)
 	pit.body_entered.connect(_on_pit_body_entered.bind(pit))
 
 func _on_pit_body_entered(body: Node3D, _pit: Area3D) -> void:
 	if body.has_method("trigger_fall_sequence"):
 		body.trigger_fall_sequence()
+	elif body.has_method("die_in_pit"):
+		body.die_in_pit()

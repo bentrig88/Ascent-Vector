@@ -81,13 +81,15 @@ scripts/
 │   ├── player_controller.gd     # CharacterBody3D + inner-class FSM entry point
 │   ├── state_ground.gd          # Ground state: movement, Slam, Spin, facing
 │   └── state_air.gd             # Air state: hover, energy drain, Machine Gun
+├── entities/
+│   └── entity.gd               # Base class: health, knockback, pit fall
 ├── enemies/
-│   ├── grunt.gd                 # Chase/Attack FSM + AStarGrid2D pathfinding
-│   └── drone.gd                 # Kite/Flee/Shoot FSM + spread enforcement
+│   ├── enemy_base.gd           # EnemyBase: health bar, damage, stagger, death
+│   ├── grunt.gd                # Wander/Chase/Attack FSM + AStarGrid2D pathfinding
+│   └── drone.gd                # Kite/Flee/Shoot FSM + burst fire + spread
 ├── weapons/
-│   ├── slam_hitbox.gd           # Area3D: forward arc damage + tile damage
-│   ├── spin_hitbox.gd           # Area3D: 360° damage, no tile damage
-│   └── projectile.gd            # Drone bullet: kinematic, deals damage on hit
+│   ├── sword_hitbox.gd         # Area3D: sword damage + tile damage (slam & spin)
+│   └── projectile.gd           # Bullet: player (fast/small) or drone (slow/orange)
 ├── systems/
 │   ├── grid_manager.gd          # 10×10 AStarGrid2D, tile HP, pit Area3D spawning
 │   ├── wave_manager.gd          # Wave composition, spawn logic, delay timer
@@ -131,9 +133,8 @@ Proxy (CharacterBody3D)
 │   └── SwordPivot (Node3D — animated by AnimationPlayer for slam/spin)
 │       ├── SwordBlade (MeshInstance3D)
 │       ├── SwordHandle (MeshInstance3D)
-│       └── SlamHitbox (Area3D — activated via AnimationPlayer method call track)
-├── SpinHitbox (Area3D — activated from state_ground.gd code)
-├── AnimationPlayer (animations: slam, spin, RESET)
+│       └── SwordHitbox (Area3D — activated via AnimationPlayer for both slam & spin)
+├── AnimationPlayer (animations: slam, spin, hit, RESET)
 ├── ProxyCamera (Camera3D — top_level=true, orthographic)
 ├── StateGround (Node)
 └── StateAir (Node)
@@ -143,9 +144,37 @@ Proxy (CharacterBody3D)
 
 - **Screen-relative movement**: All movement input is rotated +45° around Y axis (`raw.rotated(Vector3.UP, deg_to_rad(45.0))`) so that pressing "up" moves toward the top of the isometric screen.
 - **Camera detached**: `ProxyCamera` uses `top_level = true` and computes its own offset from `global_transform.basis.z * 40.0` to stay centered in orthographic view.
-- **Slam hitbox timing**: Activated via AnimationPlayer method call track at t=0.23s (when sword hits ground), not from code on button press.
+- **Sword hitbox timing**: Activated via AnimationPlayer method call track at t=0.23s for slam, t=0.0 for spin. Same SwordHitbox used for both attacks with configurable damage/knockback.
 - **Grid pathfinding**: `get_nav_path()` with `cell_size = (1, 1)` — coordinates are grid indices, not world units.
 - **Invisible walls**: South and East walls have collision but no mesh (`show_mesh=false`) to prevent camera occlusion in the isometric view.
+
+---
+
+## Session 2026-04-08 — Entity Hierarchy
+
+### Class Hierarchy
+
+```text
+Entity (scripts/entities/entity.gd) — extends CharacterBody3D
+├── health, knockback_cooldown
+├── die_in_pit() — shared fall tween with _on_pit_fall_started/_on_pit_fall_finished hooks
+│
+├── EnemyBase (scripts/enemies/enemy_base.gd) — extends Entity
+│   ├── health bar (reusable scene), take_damage, flash_hit, stagger, _die()
+│   ├── Grunt (scripts/enemies/grunt.gd) — wander/chase/attack, pathfinding, alert area
+│   └── Drone (scripts/enemies/drone.gd) — kite/flee, burst fire, separation
+│
+└── PlayerController (scripts/player/player_controller.gd) — extends Entity
+    └── energy, god_mode, states (ground/air), weapons, camera
+```
+
+### Key Changes
+
+- **Grunt wander state**: Grunts roam randomly before alerted, de-aggro when player leaves 7×7 alert area.
+- **Grunt attack animation**: AnimationPlayer-driven with 0.5s purple windup telegraph, cancelable on hit.
+- **Machine gun auto-aim**: Scans "enemy" group within ~66° cone, reads CollisionShape3D offset for accurate vertical targeting.
+- **Spin attack rework**: Rotates SwordFacingPivot (whole body) instead of just SwordPivot. Reuses SwordHitbox with 25 damage / 1.5 knockback.
+- **Pit fall unification**: Entity base handles the tween; subclasses handle aftermath (enemies die, player respawns).
 
 ---
 
